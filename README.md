@@ -12,6 +12,7 @@ The goal of this lab is to help students understand:
 - How CI/CD pipelines react to code changes
 - How SonarCloud identifies bugs, vulnerabilities, and code smells
 
+
 ---
 
 ## What Students Must Do
