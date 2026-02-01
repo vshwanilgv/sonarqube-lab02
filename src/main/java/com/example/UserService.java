@@ -2,38 +2,40 @@ package com.example;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class UserService {
 
-    // SECURITY ISSUE: Hardcoded credentials
-    private String password = "admin123";
+    // Get password from environment variable for security
+    private String password = System.getenv("DB_PASSWORD");
 
-    // VULNERABILITY: SQL Injection
+    // Fixed: Using PreparedStatement to prevent SQL Injection
     public void findUser(String username) throws SQLException {
 
+        String query = "SELECT * FROM users WHERE name = ?";
+        
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/db",
-                    "root", password);
-             Statement st = conn.createStatement()) {
+                    "root", password != null ? password : "");
+             PreparedStatement pst = conn.prepareStatement(query)) {
 
-            String query =
-                "SELECT * FROM users WHERE name = '" + username + "'";
-
-            st.executeQuery(query);
+            pst.setString(1, username);
+            pst.executeQuery();
         }
     }
 
     public void deleteUser(String username) throws SQLException {
+        String query = "DELETE FROM users WHERE name = ?";
+        
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/db","root", password);
-             Statement st = conn.createStatement()) {
-            String query ="DELETE FROM users WHERE name = '" + username + "'";
-            st.execute(query);
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setString(1, username);
+            pst.execute();
         }
     }
 
-    // SMELL: Unused method
-    public void notUsed() {
-        System.out.println("I am never called");
-    }
+    // // SMELL: Unused method
+    // public void notUsed() {
+    //     System.out.println("I am never called");
+    // }
 }
